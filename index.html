@@ -1,0 +1,976 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Micro CRM for Freelancers</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom styles for Inter font */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
+            color: #1f2937;
+        }
+        /* Basic scrollbar styling */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #e0e0e0;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+    <header class="bg-gradient-to-r from-blue-600 to-indigo-700 text-white p-4 shadow-lg">
+        <div class="container mx-auto flex justify-between items-center">
+            <h1 class="text-3xl font-bold">📋 Micro CRM</h1>
+            <nav>
+                <ul class="flex space-x-6">
+                    <li><button class="nav-button p-2 rounded-lg hover:bg-blue-800 transition duration-300" data-section="dashboard">Dashboard</button></li>
+                    <li><button class="nav-button p-2 rounded-lg hover:bg-blue-800 transition duration-300" data-section="clients">Clients</button></li>
+                    <li><button class="nav-button p-2 rounded-lg hover:bg-blue-800 transition duration-300" data-section="projects">Projects</button></li>
+                    <li><button class="nav-button p-2 rounded-lg hover:bg-blue-800 transition duration-300" data-section="reminders">Reminders</button></li>
+                    <li><button class="nav-button p-2 rounded-lg hover:bg-blue-800 transition duration-300" data-section="logs">Communication Logs</button></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main class="flex-grow container mx-auto p-6">
+        <!-- Dashboard Section -->
+        <section id="dashboard" class="crm-section active">
+            <h2 class="text-4xl font-extrabold text-gray-800 mb-6 border-b-4 border-blue-500 pb-2">Dashboard</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div class="bg-white p-6 rounded-xl shadow-md border border-gray-200">
+                    <h3 class="text-xl font-semibold text-gray-700 mb-3">Total Clients</h3>
+                    <p id="totalClients" class="text-5xl font-bold text-blue-600">0</p>
+                </div>
+                <div class="bg-white p-6 rounded-xl shadow-md border border-gray-200">
+                    <h3 class="text-xl font-semibold text-gray-700 mb-3">Active Projects</h3>
+                    <p id="activeProjects" class="text-5xl font-bold text-green-600">0</p>
+                </div>
+                <div class="bg-white p-6 rounded-xl shadow-md border border-gray-200">
+                    <h3 class="text-xl font-semibold text-gray-700 mb-3">Upcoming Reminders</h3>
+                    <p id="upcomingReminders" class="text-5xl font-bold text-purple-600">0</p>
+                </div>
+            </div>
+
+            <div class="mt-8 bg-white p-6 rounded-xl shadow-md border border-gray-200">
+                <h3 class="text-2xl font-semibold text-gray-700 mb-4">Recent Activity</h3>
+                <ul id="recentActivityList" class="space-y-2 text-gray-600">
+                    <!-- Recent activities will be loaded here -->
+                    <li class="text-center text-gray-500">No recent activity.</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- Clients Section -->
+        <section id="clients" class="crm-section hidden">
+            <h2 class="text-4xl font-extrabold text-gray-800 mb-6 border-b-4 border-blue-500 pb-2">Clients</h2>
+            <button id="addClientBtn" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg shadow-md transition duration-300 mb-6">Add New Client</button>
+
+            <div id="clientFormContainer" class="hidden bg-white p-6 rounded-xl shadow-md border border-gray-200 mb-6">
+                <h3 class="text-2xl font-semibold text-gray-700 mb-4">Client Details</h3>
+                <form id="clientForm" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <input type="hidden" id="clientId">
+                    <div>
+                        <label for="clientName" class="block text-sm font-medium text-gray-700">Client Name</label>
+                        <input type="text" id="clientName" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    <div>
+                        <label for="clientEmail" class="block text-sm font-medium text-gray-700">Email</label>
+                        <input type="email" id="clientEmail" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    <div>
+                        <label for="clientPhone" class="block text-sm font-medium text-gray-700">Phone</label>
+                        <input type="tel" id="clientPhone" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    <div>
+                        <label for="clientCompany" class="block text-sm font-medium text-gray-700">Company (Optional)</label>
+                        <input type="text" id="clientCompany" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    <div class="md:col-span-2">
+                        <label for="clientNotes" class="block text-sm font-medium text-gray-700">Notes</label>
+                        <textarea id="clientNotes" rows="3" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-blue-500 focus:border-blue-500"></textarea>
+                    </div>
+                    <div class="md:col-span-2 flex justify-end space-x-3">
+                        <button type="submit" class="bg-green-600 hover:bg-green-700 text-white px-5 py-2 rounded-lg shadow-md transition duration-300">Save Client</button>
+                        <button type="button" id="cancelClientBtn" class="bg-gray-500 hover:bg-gray-600 text-white px-5 py-2 rounded-lg shadow-md transition duration-300">Cancel</button>
+                    </div>
+                </form>
+            </div>
+
+            <div id="clientsList" class="bg-white p-6 rounded-xl shadow-md border border-gray-200">
+                <h3 class="text-2xl font-semibold text-gray-700 mb-4">Your Clients</h3>
+                <div id="clientsTableContainer" class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Phone</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Company</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="clientsTableBody" class="bg-white divide-y divide-gray-200">
+                            <!-- Client rows will be loaded here -->
+                            <tr><td colspan="5" class="px-6 py-4 text-center text-gray-500">No clients added yet.</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- Projects Section -->
+        <section id="projects" class="crm-section hidden">
+            <h2 class="text-4xl font-extrabold text-gray-800 mb-6 border-b-4 border-blue-500 pb-2">Projects</h2>
+            <button id="addProjectBtn" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg shadow-md transition duration-300 mb-6">Add New Project</button>
+
+            <div id="projectFormContainer" class="hidden bg-white p-6 rounded-xl shadow-md border border-gray-200 mb-6">
+                <h3 class="text-2xl font-semibold text-gray-700 mb-4">Project Details</h3>
+                <form id="projectForm" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <input type="hidden" id="projectId">
+                    <div>
+                        <label for="projectName" class="block text-sm font-medium text-gray-700">Project Name</label>
+                        <input type="text" id="projectName" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    <div>
+                        <label for="projectClient" class="block text-sm font-medium text-gray-700">Client</label>
+                        <select id="projectClient" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-blue-500 focus:border-blue-500">
+                            <option value="">Select a Client</option>
+                            <!-- Clients will be loaded here -->
+                        </select>
+                    </div>
+                    <div>
+                        <label for="projectDeadline" class="block text-sm font-medium text-gray-700">Deadline</label>
+                        <input type="date" id="projectDeadline" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    <div>
+                        <label for="projectStatus" class="block text-sm font-medium text-gray-700">Status</label>
+                        <select id="projectStatus" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-blue-500 focus:border-blue-500">
+                            <option value="To Do">To Do</option>
+                            <option value="In Progress">In Progress</option>
+                            <option value="Completed">Completed</option>
+                            <option value="On Hold">On Hold</option>
+                            <option value="Cancelled">Cancelled</option>
+                        </select>
+                    </div>
+                    <div class="md:col-span-2">
+                        <label for="projectNotes" class="block text-sm font-medium text-gray-700">Notes</label>
+                        <textarea id="projectNotes" rows="3" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-blue-500 focus:border-blue-500"></textarea>
+                    </div>
+                    <div class="md:col-span-2 flex justify-end space-x-3">
+                        <button type="submit" class="bg-green-600 hover:bg-green-700 text-white px-5 py-2 rounded-lg shadow-md transition duration-300">Save Project</button>
+                        <button type="button" id="cancelProjectBtn" class="bg-gray-500 hover:bg-gray-600 text-white px-5 py-2 rounded-lg shadow-md transition duration-300">Cancel</button>
+                    </div>
+                </form>
+            </div>
+
+            <div id="projectsList" class="bg-white p-6 rounded-xl shadow-md border border-gray-200">
+                <h3 class="text-2xl font-semibold text-gray-700 mb-4">Your Projects</h3>
+                <div id="projectsTableContainer" class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Project Name</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Client</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Deadline</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="projectsTableBody" class="bg-white divide-y divide-gray-200">
+                            <!-- Project rows will be loaded here -->
+                            <tr><td colspan="5" class="px-6 py-4 text-center text-gray-500">No projects added yet.</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- Reminders Section -->
+        <section id="reminders" class="crm-section hidden">
+            <h2 class="text-4xl font-extrabold text-gray-800 mb-6 border-b-4 border-blue-500 pb-2">Reminders</h2>
+            <button id="addReminderBtn" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg shadow-md transition duration-300 mb-6">Add New Reminder</button>
+
+            <div id="reminderFormContainer" class="hidden bg-white p-6 rounded-xl shadow-md border border-gray-200 mb-6">
+                <h3 class="text-2xl font-semibold text-gray-700 mb-4">Reminder Details</h3>
+                <form id="reminderForm" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <input type="hidden" id="reminderId">
+                    <div>
+                        <label for="reminderText" class="block text-sm font-medium text-gray-700">Reminder</label>
+                        <input type="text" id="reminderText" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    <div>
+                        <label for="reminderDate" class="block text-sm font-medium text-gray-700">Date</label>
+                        <input type="date" id="reminderDate" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    <div>
+                        <label for="reminderTime" class="block text-sm font-medium text-gray-700">Time (Optional)</label>
+                        <input type="time" id="reminderTime" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    <div>
+                        <label for="reminderClient" class="block text-sm font-medium text-gray-700">Related Client (Optional)</label>
+                        <select id="reminderClient" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-blue-500 focus:border-blue-500">
+                            <option value="">None</option>
+                            <!-- Clients will be loaded here -->
+                        </select>
+                    </div>
+                    <div class="md:col-span-2 flex justify-end space-x-3">
+                        <button type="submit" class="bg-green-600 hover:bg-green-700 text-white px-5 py-2 rounded-lg shadow-md transition duration-300">Save Reminder</button>
+                        <button type="button" id="cancelReminderBtn" class="bg-gray-500 hover:bg-gray-600 text-white px-5 py-2 rounded-lg shadow-md transition duration-300">Cancel</button>
+                    </div>
+                </form>
+            </div>
+
+            <div id="remindersList" class="bg-white p-6 rounded-xl shadow-md border border-gray-200">
+                <h3 class="text-2xl font-semibold text-gray-700 mb-4">Your Reminders</h3>
+                <div id="remindersTableContainer" class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Reminder</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date & Time</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Client</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="remindersTableBody" class="bg-white divide-y divide-gray-200">
+                            <!-- Reminder rows will be loaded here -->
+                            <tr><td colspan="4" class="px-6 py-4 text-center text-gray-500">No reminders set yet.</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- Communication Logs Section -->
+        <section id="logs" class="crm-section hidden">
+            <h2 class="text-4xl font-extrabold text-gray-800 mb-6 border-b-4 border-blue-500 pb-2">Communication Logs</h2>
+            <button id="addLogBtn" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg shadow-md transition duration-300 mb-6">Add New Log Entry</button>
+
+            <div id="logFormContainer" class="hidden bg-white p-6 rounded-xl shadow-md border border-gray-200 mb-6">
+                <h3 class="text-2xl font-semibold text-gray-700 mb-4">Log Details</h3>
+                <form id="logForm" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <input type="hidden" id="logId">
+                    <div>
+                        <label for="logType" class="block text-sm font-medium text-gray-700">Type</label>
+                        <select id="logType" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-blue-500 focus:border-blue-500">
+                            <option value="Email">Email</option>
+                            <option value="Call">Call</option>
+                            <option value="Meeting">Meeting</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="logClient" class="block text-sm font-medium text-gray-700">Client</label>
+                        <select id="logClient" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-blue-500 focus:border-blue-500">
+                            <option value="">Select a Client</option>
+                            <!-- Clients will be loaded here -->
+                        </select>
+                    </div>
+                    <div>
+                        <label for="logDate" class="block text-sm font-medium text-gray-700">Date</label>
+                        <input type="date" id="logDate" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    <div>
+                        <label for="logTime" class="block text-sm font-medium text-gray-700">Time</label>
+                        <input type="time" id="logTime" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    <div class="md:col-span-2">
+                        <label for="logSubject" class="block text-sm font-medium text-gray-700">Subject/Summary</label>
+                        <input type="text" id="logSubject" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    <div class="md:col-span-2">
+                        <label for="logNotes" class="block text-sm font-medium text-gray-700">Detailed Notes</label>
+                        <textarea id="logNotes" rows="4" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-blue-500 focus:border-blue-500"></textarea>
+                    </div>
+                    <div class="md:col-span-2 flex justify-end space-x-3">
+                        <button type="submit" class="bg-green-600 hover:bg-green-700 text-white px-5 py-2 rounded-lg shadow-md transition duration-300">Save Log</button>
+                        <button type="button" id="cancelLogBtn" class="bg-gray-500 hover:bg-gray-600 text-white px-5 py-2 rounded-lg shadow-md transition duration-300">Cancel</button>
+                    </div>
+                </form>
+            </div>
+
+            <div id="logsList" class="bg-white p-6 rounded-xl shadow-md border border-gray-200">
+                <h3 class="text-2xl font-semibold text-gray-700 mb-4">Your Communication Logs</h3>
+                <div id="logsTableContainer" class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date & Time</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Client</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Subject/Summary</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="logsTableBody" class="bg-white divide-y divide-gray-200">
+                            <!-- Log rows will be loaded here -->
+                            <tr><td colspan="5" class="px-6 py-4 text-center text-gray-500">No communication logs yet.</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Global Message Box -->
+    <div id="messageBox" class="fixed inset-x-0 bottom-0 flex items-end justify-center px-4 py-6 pointer-events-none z-50">
+        <div id="messageBoxContent" class="max-w-sm w-full bg-blue-500 text-white p-4 rounded-lg shadow-lg text-center opacity-0 transition-opacity duration-300">
+            <!-- Message will be displayed here -->
+        </div>
+    </div>
+
+    <!-- Confirmation Modal -->
+    <div id="confirmationModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center hidden z-50">
+        <div class="bg-white p-8 rounded-lg shadow-xl max-w-sm w-full">
+            <h3 class="text-xl font-bold mb-4 text-gray-800">Confirm Deletion</h3>
+            <p class="text-gray-700 mb-6">Are you sure you want to delete this item?</p>
+            <div class="flex justify-end space-x-4">
+                <button id="confirmCancelBtn" class="bg-gray-300 hover:bg-gray-400 text-gray-800 px-5 py-2 rounded-lg transition duration-300">Cancel</button>
+                <button id="confirmDeleteBtn" class="bg-red-600 hover:bg-red-700 text-white px-5 py-2 rounded-lg transition duration-300">Delete</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDKs -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, doc, addDoc, getDoc, setDoc, updateDoc, deleteDoc, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // Global variables for Firebase instances and user ID
+        let app;
+        let db;
+        let auth;
+        let userId;
+        let clients = []; // Array to store clients
+        let projects = []; // Array to store projects
+        let reminders = []; // Array to store reminders
+        let logs = []; // Array to store communication logs
+
+        // Function to show messages
+        function showMessage(message, type = 'info') {
+            const messageBox = document.getElementById('messageBoxContent');
+            messageBox.textContent = message;
+            messageBox.className = `max-w-sm w-full p-4 rounded-lg shadow-lg text-center opacity-0 transition-opacity duration-300`;
+
+            if (type === 'success') {
+                messageBox.classList.add('bg-green-500', 'text-white');
+            } else if (type === 'error') {
+                messageBox.classList.add('bg-red-500', 'text-white');
+            } else {
+                messageBox.classList.add('bg-blue-500', 'text-white');
+            }
+
+            messageBox.classList.remove('opacity-0');
+            messageBox.classList.add('opacity-100');
+
+            setTimeout(() => {
+                messageBox.classList.remove('opacity-100');
+                messageBox.classList.add('opacity-0');
+            }, 3000);
+        }
+
+        // Confirmation Modal Logic
+        let confirmAction = null;
+        const confirmationModal = document.getElementById('confirmationModal');
+        const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
+        const confirmCancelBtn = document.getElementById('confirmCancelBtn');
+
+        function showConfirmationModal(callback) {
+            confirmAction = callback;
+            confirmationModal.classList.remove('hidden');
+        }
+
+        confirmDeleteBtn.addEventListener('click', () => {
+            if (confirmAction) {
+                confirmAction();
+            }
+            confirmationModal.classList.add('hidden');
+            confirmAction = null;
+        });
+
+        confirmCancelBtn.addEventListener('click', () => {
+            confirmationModal.classList.add('hidden');
+            confirmAction = null;
+        });
+
+        // Initialize Firebase and set up authentication
+        const initializeFirebase = async () => {
+            try {
+                // Get app ID and Firebase config from global variables
+                const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+                const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
+
+                app = initializeApp(firebaseConfig);
+                db = getFirestore(app);
+                auth = getAuth(app);
+
+                // Sign in with custom token if available, otherwise anonymously
+                if (typeof __initial_auth_token !== 'undefined') {
+                    await signInWithCustomToken(auth, __initial_auth_token);
+                } else {
+                    await signInAnonymously(auth);
+                }
+
+                // Listen for auth state changes to get the user ID
+                onAuthStateChanged(auth, (user) => {
+                    if (user) {
+                        userId = user.uid;
+                        console.log("User authenticated:", userId);
+                        showMessage(`Welcome, User ID: ${userId}`, 'success');
+                        // Start listening to data once authenticated
+                        setupFirestoreListeners();
+                        updateDashboard();
+                    } else {
+                        console.log("No user is signed in.");
+                        showMessage("Please sign in to save your data.", 'info');
+                    }
+                });
+
+            } catch (error) {
+                console.error("Error initializing Firebase or authenticating:", error);
+                showMessage(`Error: ${error.message}`, 'error');
+            }
+        };
+
+        // --- Firestore Data Management ---
+
+        // Helper to get collection reference
+        const getCollectionRef = (collectionName) => {
+            if (!userId) {
+                console.error("User not authenticated. Cannot access Firestore.");
+                return null;
+            }
+            // Store data in a private collection for the user
+            return collection(db, `artifacts/${__app_id}/users/${userId}/${collectionName}`);
+        };
+
+        // Add/Update Document
+        const saveDocument = async (collectionName, data, id = null) => {
+            const colRef = getCollectionRef(collectionName);
+            if (!colRef) return;
+
+            try {
+                if (id) {
+                    // Update existing document
+                    const docRef = doc(colRef, id);
+                    await setDoc(docRef, data, { merge: true });
+                    showMessage(`${collectionName.slice(0, -1)} updated successfully!`, 'success');
+                } else {
+                    // Add new document
+                    await addDoc(colRef, data);
+                    showMessage(`${collectionName.slice(0, -1)} added successfully!`, 'success');
+                }
+            } catch (e) {
+                console.error(`Error saving ${collectionName.slice(0, -1)}:`, e);
+                showMessage(`Error saving ${collectionName.slice(0, -1)}: ${e.message}`, 'error');
+            }
+        };
+
+        // Delete Document
+        const deleteDocument = async (collectionName, id) => {
+            const colRef = getCollectionRef(collectionName);
+            if (!colRef) return;
+
+            try {
+                await deleteDoc(doc(colRef, id));
+                showMessage(`${collectionName.slice(0, -1)} deleted successfully!`, 'success');
+            } catch (e) {
+                console.error(`Error deleting ${collectionName.slice(0, -1)}:`, e);
+                showMessage(`Error deleting ${collectionName.slice(0, -1)}: ${e.message}`, 'error');
+            }
+        };
+
+        // --- Real-time Listeners (onSnapshot) ---
+        const setupFirestoreListeners = () => {
+            if (!db || !userId) {
+                console.error("Firestore or User ID not ready for listeners.");
+                return;
+            }
+
+            // Clients Listener
+            onSnapshot(getCollectionRef('clients'), (snapshot) => {
+                clients = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                renderClients();
+                populateClientSelects();
+                updateDashboard();
+                updateRecentActivity('clients');
+            }, (error) => {
+                console.error("Error fetching clients:", error);
+                showMessage("Error loading clients.", 'error');
+            });
+
+            // Projects Listener
+            onSnapshot(getCollectionRef('projects'), (snapshot) => {
+                projects = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                renderProjects();
+                updateDashboard();
+                updateRecentActivity('projects');
+            }, (error) => {
+                console.error("Error fetching projects:", error);
+                showMessage("Error loading projects.", 'error');
+            });
+
+            // Reminders Listener
+            onSnapshot(getCollectionRef('reminders'), (snapshot) => {
+                reminders = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                // Sort reminders by date and time
+                reminders.sort((a, b) => {
+                    const dateA = new Date(`${a.date}T${a.time || '00:00'}`);
+                    const dateB = new Date(`${b.date}T${b.time || '00:00'}`);
+                    return dateA - dateB;
+                });
+                renderReminders();
+                updateDashboard();
+                updateRecentActivity('reminders');
+            }, (error) => {
+                console.error("Error fetching reminders:", error);
+                showMessage("Error loading reminders.", 'error');
+            });
+
+            // Communication Logs Listener
+            onSnapshot(getCollectionRef('logs'), (snapshot) => {
+                logs = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                // Sort logs by date and time in descending order
+                logs.sort((a, b) => {
+                    const dateA = new Date(`${a.date}T${a.time}`);
+                    const dateB = new Date(`${b.date}T${b.time}`);
+                    return dateB - dateA;
+                });
+                renderLogs();
+                updateRecentActivity('logs');
+            }, (error) => {
+                console.error("Error fetching communication logs:", error);
+                showMessage("Error loading communication logs.", 'error');
+            });
+        };
+
+        // --- UI Rendering Functions ---
+
+        // Render Clients
+        const clientsTableBody = document.getElementById('clientsTableBody');
+        const renderClients = () => {
+            clientsTableBody.innerHTML = ''; // Clear existing rows
+            if (clients.length === 0) {
+                clientsTableBody.innerHTML = '<tr><td colspan="5" class="px-6 py-4 text-center text-gray-500">No clients added yet.</td></tr>';
+                return;
+            }
+            clients.forEach(client => {
+                const row = document.createElement('tr');
+                row.className = 'hover:bg-gray-50';
+                row.innerHTML = `
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${client.name}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">${client.email || 'N/A'}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">${client.phone || 'N/A'}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">${client.company || 'N/A'}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                        <button data-id="${client.id}" class="edit-client-btn text-indigo-600 hover:text-indigo-900 mr-3">Edit</button>
+                        <button data-id="${client.id}" class="delete-client-btn text-red-600 hover:text-red-900">Delete</button>
+                    </td>
+                `;
+                clientsTableBody.appendChild(row);
+            });
+        };
+
+        // Render Projects
+        const projectsTableBody = document.getElementById('projectsTableBody');
+        const renderProjects = () => {
+            projectsTableBody.innerHTML = ''; // Clear existing rows
+            if (projects.length === 0) {
+                projectsTableBody.innerHTML = '<tr><td colspan="5" class="px-6 py-4 text-center text-gray-500">No projects added yet.</td></tr>';
+                return;
+            }
+            projects.forEach(project => {
+                const clientName = clients.find(c => c.id === project.clientId)?.name || 'Unknown Client';
+                const statusColor = {
+                    "To Do": "bg-gray-200 text-gray-800",
+                    "In Progress": "bg-blue-200 text-blue-800",
+                    "Completed": "bg-green-200 text-green-800",
+                    "On Hold": "bg-yellow-200 text-yellow-800",
+                    "Cancelled": "bg-red-200 text-red-800"
+                };
+                const statusClass = statusColor[project.status] || "bg-gray-200 text-gray-800";
+
+                const row = document.createElement('tr');
+                row.className = 'hover:bg-gray-50';
+                row.innerHTML = `
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${project.name}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">${clientName}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">${project.deadline || 'N/A'}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm">
+                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${statusClass}">
+                            ${project.status}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                        <button data-id="${project.id}" class="edit-project-btn text-indigo-600 hover:text-indigo-900 mr-3">Edit</button>
+                        <button data-id="${project.id}" class="delete-project-btn text-red-600 hover:text-red-900">Delete</button>
+                    </td>
+                `;
+                projectsTableBody.appendChild(row);
+            });
+        };
+
+        // Render Reminders
+        const remindersTableBody = document.getElementById('remindersTableBody');
+        const renderReminders = () => {
+            remindersTableBody.innerHTML = ''; // Clear existing rows
+            if (reminders.length === 0) {
+                remindersTableBody.innerHTML = '<tr><td colspan="4" class="px-6 py-4 text-center text-gray-500">No reminders set yet.</td></tr>';
+                return;
+            }
+            reminders.forEach(reminder => {
+                const clientName = clients.find(c => c.id === reminder.clientId)?.name || 'N/A';
+                const dateTime = `${reminder.date} ${reminder.time || ''}`.trim();
+                const row = document.createElement('tr');
+                row.className = 'hover:bg-gray-50';
+                row.innerHTML = `
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${reminder.text}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">${dateTime}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">${clientName}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                        <button data-id="${reminder.id}" class="edit-reminder-btn text-indigo-600 hover:text-indigo-900 mr-3">Edit</button>
+                        <button data-id="${reminder.id}" class="delete-reminder-btn text-red-600 hover:text-red-900">Delete</button>
+                    </td>
+                `;
+                remindersTableBody.appendChild(row);
+            });
+        };
+
+        // Render Communication Logs
+        const logsTableBody = document.getElementById('logsTableBody');
+        const renderLogs = () => {
+            logsTableBody.innerHTML = ''; // Clear existing rows
+            if (logs.length === 0) {
+                logsTableBody.innerHTML = '<tr><td colspan="5" class="px-6 py-4 text-center text-gray-500">No communication logs yet.</td></tr>';
+                return;
+            }
+            logs.forEach(log => {
+                const clientName = clients.find(c => c.id === log.clientId)?.name || 'Unknown Client';
+                const dateTime = `${log.date} ${log.time}`.trim();
+                const row = document.createElement('tr');
+                row.className = 'hover:bg-gray-50';
+                row.innerHTML = `
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${dateTime}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">${log.type}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">${clientName}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">${log.subject}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                        <button data-id="${log.id}" class="edit-log-btn text-indigo-600 hover:text-indigo-900 mr-3">Edit</button>
+                        <button data-id="${log.id}" class="delete-log-btn text-red-600 hover:text-red-900">Delete</button>
+                    </td>
+                `;
+                logsTableBody.appendChild(row);
+            });
+        };
+
+        // Populate Client Select Dropdowns
+        const populateClientSelects = () => {
+            const projectClientSelect = document.getElementById('projectClient');
+            const reminderClientSelect = document.getElementById('reminderClient');
+            const logClientSelect = document.getElementById('logClient');
+
+            // Clear existing options, keeping the default "Select a Client" or "None"
+            projectClientSelect.innerHTML = '<option value="">Select a Client</option>';
+            reminderClientSelect.innerHTML = '<option value="">None</option>';
+            logClientSelect.innerHTML = '<option value="">Select a Client</option>';
+
+            clients.forEach(client => {
+                const option1 = document.createElement('option');
+                option1.value = client.id;
+                option1.textContent = client.name;
+                projectClientSelect.appendChild(option1);
+
+                const option2 = document.createElement('option');
+                option2.value = client.id;
+                option2.textContent = client.name;
+                reminderClientSelect.appendChild(option2);
+
+                const option3 = document.createElement('option');
+                option3.value = client.id;
+                option3.textContent = client.name;
+                logClientSelect.appendChild(option3);
+            });
+        };
+
+        // --- Dashboard Update ---
+        const updateDashboard = () => {
+            document.getElementById('totalClients').textContent = clients.length;
+            const activeProjectsCount = projects.filter(p => p.status !== 'Completed' && p.status !== 'Cancelled').length;
+            document.getElementById('activeProjects').textContent = activeProjectsCount;
+
+            const now = new Date();
+            const upcomingRemindersCount = reminders.filter(r => {
+                const reminderDateTime = new Date(`${r.date}T${r.time || '00:00'}`);
+                return reminderDateTime > now;
+            }).length;
+            document.getElementById('upcomingReminders').textContent = upcomingRemindersCount;
+        };
+
+        // --- Recent Activity Update ---
+        const recentActivityList = document.getElementById('recentActivityList');
+        const updateRecentActivity = (type) => {
+            // This is a simplified approach. For a real app, you'd track timestamps of changes.
+            // For now, we'll just show the last few items added/modified.
+            let activityHtml = '';
+            const maxActivities = 5;
+
+            const allActivities = [
+                ...clients.map(c => ({ type: 'Client', name: c.name, date: c.createdAt || new Date().toISOString() })),
+                ...projects.map(p => ({ type: 'Project', name: p.name, date: p.createdAt || new Date().toISOString() })),
+                ...reminders.map(r => ({ type: 'Reminder', name: r.text, date: r.createdAt || new Date().toISOString() })),
+                ...logs.map(l => ({ type: 'Log', name: l.subject, date: l.createdAt || new Date().toISOString() })),
+            ].sort((a, b) => new Date(b.date) - new Date(a.date)); // Sort by creation date descending
+
+            if (allActivities.length === 0) {
+                recentActivityList.innerHTML = '<li class="text-center text-gray-500">No recent activity.</li>';
+                return;
+            }
+
+            for (let i = 0; i < Math.min(maxActivities, allActivities.length); i++) {
+                const activity = allActivities[i];
+                const date = new Date(activity.date).toLocaleString();
+                activityHtml += `<li><span class="font-semibold">${activity.type}:</span> ${activity.name} <span class="text-gray-400 text-sm">(${date})</span></li>`;
+            }
+            recentActivityList.innerHTML = activityHtml;
+        };
+
+
+        // --- Event Listeners for Forms and Buttons ---
+
+        // Navigation
+        document.querySelectorAll('.nav-button').forEach(button => {
+            button.addEventListener('click', (e) => {
+                document.querySelectorAll('.crm-section').forEach(section => {
+                    section.classList.add('hidden');
+                });
+                document.getElementById(e.target.dataset.section).classList.remove('hidden');
+            });
+        });
+
+        // --- Client Form ---
+        const clientFormContainer = document.getElementById('clientFormContainer');
+        const clientForm = document.getElementById('clientForm');
+        const addClientBtn = document.getElementById('addClientBtn');
+        const cancelClientBtn = document.getElementById('cancelClientBtn');
+
+        addClientBtn.addEventListener('click', () => {
+            clientForm.reset();
+            document.getElementById('clientId').value = '';
+            clientFormContainer.classList.remove('hidden');
+        });
+
+        cancelClientBtn.addEventListener('click', () => {
+            clientFormContainer.classList.add('hidden');
+        });
+
+        clientForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const clientId = document.getElementById('clientId').value;
+            const clientData = {
+                name: document.getElementById('clientName').value,
+                email: document.getElementById('clientEmail').value,
+                phone: document.getElementById('clientPhone').value,
+                company: document.getElementById('clientCompany').value,
+                notes: document.getElementById('clientNotes').value,
+                createdAt: clientId ? clients.find(c => c.id === clientId)?.createdAt : new Date().toISOString() // Preserve creation date on edit
+            };
+            await saveDocument('clients', clientData, clientId);
+            clientFormContainer.classList.add('hidden');
+        });
+
+        clientsTableBody.addEventListener('click', (e) => {
+            if (e.target.classList.contains('edit-client-btn')) {
+                const id = e.target.dataset.id;
+                const client = clients.find(c => c.id === id);
+                if (client) {
+                    document.getElementById('clientId').value = client.id;
+                    document.getElementById('clientName').value = client.name;
+                    document.getElementById('clientEmail').value = client.email;
+                    document.getElementById('clientPhone').value = client.phone;
+                    document.getElementById('clientCompany').value = client.company;
+                    document.getElementById('clientNotes').value = client.notes;
+                    clientFormContainer.classList.remove('hidden');
+                }
+            } else if (e.target.classList.contains('delete-client-btn')) {
+                const idToDelete = e.target.dataset.id;
+                showConfirmationModal(() => deleteDocument('clients', idToDelete));
+            }
+        });
+
+        // --- Project Form ---
+        const projectFormContainer = document.getElementById('projectFormContainer');
+        const projectForm = document.getElementById('projectForm');
+        const addProjectBtn = document.getElementById('addProjectBtn');
+        const cancelProjectBtn = document.getElementById('cancelProjectBtn');
+
+        addProjectBtn.addEventListener('click', () => {
+            projectForm.reset();
+            document.getElementById('projectId').value = '';
+            projectFormContainer.classList.remove('hidden');
+        });
+
+        cancelProjectBtn.addEventListener('click', () => {
+            projectFormContainer.classList.add('hidden');
+        });
+
+        projectForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const projectId = document.getElementById('projectId').value;
+            const projectData = {
+                name: document.getElementById('projectName').value,
+                clientId: document.getElementById('projectClient').value,
+                deadline: document.getElementById('projectDeadline').value,
+                status: document.getElementById('projectStatus').value,
+                notes: document.getElementById('projectNotes').value,
+                createdAt: projectId ? projects.find(p => p.id === projectId)?.createdAt : new Date().toISOString()
+            };
+            await saveDocument('projects', projectData, projectId);
+            projectFormContainer.classList.add('hidden');
+        });
+
+        projectsTableBody.addEventListener('click', (e) => {
+            if (e.target.classList.contains('edit-project-btn')) {
+                const id = e.target.dataset.id;
+                const project = projects.find(p => p.id === id);
+                if (project) {
+                    document.getElementById('projectId').value = project.id;
+                    document.getElementById('projectName').value = project.name;
+                    document.getElementById('projectClient').value = project.clientId;
+                    document.getElementById('projectDeadline').value = project.deadline;
+                    document.getElementById('projectStatus').value = project.status;
+                    document.getElementById('projectNotes').value = project.notes;
+                    projectFormContainer.classList.remove('hidden');
+                }
+            } else if (e.target.classList.contains('delete-project-btn')) {
+                const idToDelete = e.target.dataset.id;
+                showConfirmationModal(() => deleteDocument('projects', idToDelete));
+            }
+        });
+
+        // --- Reminder Form ---
+        const reminderFormContainer = document.getElementById('reminderFormContainer');
+        const reminderForm = document.getElementById('reminderForm');
+        const addReminderBtn = document.getElementById('addReminderBtn');
+        const cancelReminderBtn = document.getElementById('cancelReminderBtn');
+
+        addReminderBtn.addEventListener('click', () => {
+            reminderForm.reset();
+            document.getElementById('reminderId').value = '';
+            // Set default date to today
+            document.getElementById('reminderDate').valueAsDate = new Date();
+            reminderFormContainer.classList.remove('hidden');
+        });
+
+        cancelReminderBtn.addEventListener('click', () => {
+            reminderFormContainer.classList.add('hidden');
+        });
+
+        reminderForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const reminderId = document.getElementById('reminderId').value;
+            const reminderData = {
+                text: document.getElementById('reminderText').value,
+                date: document.getElementById('reminderDate').value,
+                time: document.getElementById('reminderTime').value,
+                clientId: document.getElementById('reminderClient').value || null, // Store null if no client selected
+                createdAt: reminderId ? reminders.find(r => r.id === reminderId)?.createdAt : new Date().toISOString()
+            };
+            await saveDocument('reminders', reminderData, reminderId);
+            reminderFormContainer.classList.add('hidden');
+        });
+
+        remindersTableBody.addEventListener('click', (e) => {
+            if (e.target.classList.contains('edit-reminder-btn')) {
+                const id = e.target.dataset.id;
+                const reminder = reminders.find(r => r.id === id);
+                if (reminder) {
+                    document.getElementById('reminderId').value = reminder.id;
+                    document.getElementById('reminderText').value = reminder.text;
+                    document.getElementById('reminderDate').value = reminder.date;
+                    document.getElementById('reminderTime').value = reminder.time;
+                    document.getElementById('reminderClient').value = reminder.clientId || '';
+                    reminderFormContainer.classList.remove('hidden');
+                }
+            } else if (e.target.classList.contains('delete-reminder-btn')) {
+                const idToDelete = e.target.dataset.id;
+                showConfirmationModal(() => deleteDocument('reminders', idToDelete));
+            }
+        });
+
+        // --- Communication Log Form ---
+        const logFormContainer = document.getElementById('logFormContainer');
+        const logForm = document.getElementById('logForm');
+        const addLogBtn = document.getElementById('addLogBtn');
+        const cancelLogBtn = document.getElementById('cancelLogBtn');
+
+        addLogBtn.addEventListener('click', () => {
+            logForm.reset();
+            document.getElementById('logId').value = '';
+            // Set default date and time to now
+            const now = new Date();
+            document.getElementById('logDate').valueAsDate = now;
+            document.getElementById('logTime').value = now.toTimeString().slice(0, 5);
+            logFormContainer.classList.remove('hidden');
+        });
+
+        cancelLogBtn.addEventListener('click', () => {
+            logFormContainer.classList.add('hidden');
+        });
+
+        logForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const logId = document.getElementById('logId').value;
+            const logData = {
+                type: document.getElementById('logType').value,
+                clientId: document.getElementById('logClient').value,
+                date: document.getElementById('logDate').value,
+                time: document.getElementById('logTime').value,
+                subject: document.getElementById('logSubject').value,
+                notes: document.getElementById('logNotes').value,
+                createdAt: logId ? logs.find(l => l.id === logId)?.createdAt : new Date().toISOString()
+            };
+            await saveDocument('logs', logData, logId);
+            logFormContainer.classList.add('hidden');
+        });
+
+        logsTableBody.addEventListener('click', (e) => {
+            if (e.target.classList.contains('edit-log-btn')) {
+                const id = e.target.dataset.id;
+                const log = logs.find(l => l.id === id);
+                if (log) {
+                    document.getElementById('logId').value = log.id;
+                    document.getElementById('logType').value = log.type;
+                    document.getElementById('logClient').value = log.clientId;
+                    document.getElementById('logDate').value = log.date;
+                    document.getElementById('logTime').value = log.time;
+                    document.getElementById('logSubject').value = log.subject;
+                    document.getElementById('logNotes').value = log.notes;
+                    logFormContainer.classList.remove('hidden');
+                }
+            } else if (e.target.classList.contains('delete-log-btn')) {
+                const idToDelete = e.target.dataset.id;
+                showConfirmationModal(() => deleteDocument('logs', idToDelete));
+            }
+        });
+
+        // Initialize Firebase when the window loads
+        window.onload = initializeFirebase;
+    </script>
+</body>
+</html>
